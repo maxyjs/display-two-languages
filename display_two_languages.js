@@ -500,7 +500,7 @@ function display_two_languages(extOptions, devUtils) {
     function githubGlobal() {
 
       const githubGlobalSelectorsPreventTranslate = [
-        '.Box.mb-3',
+        '[class="Box mb-3"]',
         'div.BorderGrid',
         'ul.pagehead-actions',
         'h1',
