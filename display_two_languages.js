@@ -133,6 +133,10 @@ function display_two_languages(extOptions, devUtils) {
 
   function handleStackoverflow(location) {
 
+    if (location.host === 'ru.stackoverflow.com') {
+      return
+    }
+
     switchStackoverflowPageHandlers(location)
 
     function switchStackoverflowPageHandlers(location) {
