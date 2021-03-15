@@ -396,7 +396,7 @@ function display_two_languages(extOptions, devUtils) {
             resultsElems: '.g',
             summary: '.summary',
             links: '.yuRUbf',
-            resultTitle: 'h3 span',
+            resultTitle: 'h3',
             description: '.aCOpRe',
           },
           mobile: {
