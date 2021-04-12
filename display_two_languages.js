@@ -8,74 +8,71 @@
       'codeburst.io',
       'atavi.com',
       'codesandbox.io',
-    ]
-  }
+    ],
+  };
   const devUtils = {
-    showBorder
-  }
+    showBorder,
+  };
 
   try {
-    launch()
+    launch();
   } catch (err) {
-    toastr.error(`${err.message}` || "ERROR: display two languages")
-    console.error(err)
+    toastr.error(`${err.message}` || 'ERROR: display two languages');
+    console.error(err);
   }
 
   function launch() {
-    const {skipDomain} = extOptions
-    const hostname = window.location.hostname
+    const { skipDomain } = extOptions;
+    const hostname = window.location.hostname;
 
     if (skipDomain.includes(hostname)) {
-      return
+      return;
     }
 
-    display_two_languages(extOptions, devUtils)
+    display_two_languages(extOptions, devUtils);
   }
 
-  /***   dev utils   ***/
+  ///////  dev utils
   function showBorder(element, selector = '') {
-
     try {
-      element.style.border = '2px dotted red'
-      showSelector(element, selector)
+      element.style.border = '2px dotted red';
+      showSelector(element, selector);
     } catch (err) {
       toastr.error(`[showBorder]:
     originError: ${err.message}
     selector: ${selector}
-    `)
+    `);
     }
 
     function showSelector(element, selector) {
+      element.style.position = 'relative';
 
-      element.style.position = 'relative'
-
-      const hint = document.createElement("span")
-      hint.textContent = selector
-      hint.setAttribute('style', `
+      const hint = document.createElement('span');
+      hint.textContent = selector;
+      hint.setAttribute(
+        'style',
+        `
     position: absolute;
     top: 0;
     left: 0;
     color: while;
     font-size: 1em;
     background-color: red;
-    `)
-      element.appendChild(hint)
+    `
+      );
+      element.appendChild(hint);
     }
-
   }
 
-// dev-utils
-})()
+  /// dev-utils
+})();
 
 function display_two_languages(extOptions, devUtils) {
+  const { showBorder } = devUtils;
 
-  const {
-    showBorder
-  } = devUtils
-
-  const isDev = false
-  const colorTranslatedText = "#a561be"
-  const ALL_SELECTORS_CODEBLOCKS = ['pre', 'figure', '.gist', '.highlight',]
+  const isDev = false;
+  const colorTranslatedText = '#a561be';
+  const ALL_SELECTORS_CODEBLOCKS = ['pre', 'figure', '.gist', '.highlight'];
   const MAIN_CONTENT_SELECTORS = {
     tagsShouldBeOne: [
       'article',
@@ -86,185 +83,194 @@ function display_two_languages(extOptions, devUtils) {
       '.container',
       'main',
     ],
-  }
+  };
 
   function preventTranslateElem(elem) {
     if (elem) {
-      elem.setAttribute("translate", "no");
-      elem.classList.add("notranslate");
+      elem.setAttribute('translate', 'no');
+      elem.classList.add('notranslate');
     }
   }
 
-  extOptions.preventTitleTranslate && preventTitleTranslate()
+  extOptions.preventTitleTranslate && preventTitleTranslate();
 
-  let shouldUseUniversalHandler = switchHandler()
+  let shouldUseUniversalHandler = switchHandler();
 
-  shouldUseUniversalHandler && launchUniversalHandler()
+  shouldUseUniversalHandler && launchUniversalHandler();
 
   function launchUniversalHandler() {
-    const context = getMainContext(extOptions, MAIN_CONTENT_SELECTORS)
-    launchTagsHandlersByRules(context)
+    const context = getMainContext(extOptions, MAIN_CONTENT_SELECTORS);
+    launchTagsHandlersByRules(context);
   }
 
   function switchHandler() {
-
-    let shouldUseUniversalHandler = true
-    const href = window.location.href
-    const location = window.location
+    let shouldUseUniversalHandler = true;
+    const href = window.location.href;
+    const location = window.location;
 
     if (href.startsWith('https://www.google.com/search?')) {
-      shouldUseUniversalHandler = false
-      handleGoogleSearchPage()
-      return shouldUseUniversalHandler
-    }
-    if (href.startsWith('https://github.com/')) {
-      shouldUseUniversalHandler = false
-      handleGithub()
-      return shouldUseUniversalHandler
-    }
-    if (location.hostname.includes('stackoverflow')) {
-      shouldUseUniversalHandler = false
-      handleStackoverflow(location)
-      return shouldUseUniversalHandler
+      shouldUseUniversalHandler = false;
+      handleGoogleSearchPage();
+      return shouldUseUniversalHandler;
     }
 
-    return shouldUseUniversalHandler
+    if (href.startsWith('https://github.com/')) {
+      shouldUseUniversalHandler = false;
+      handleGithub();
+      return shouldUseUniversalHandler;
+    }
+
+    if (location.hostname.includes('stackoverflow')) {
+      shouldUseUniversalHandler = false;
+      handleStackoverflow(location);
+      return shouldUseUniversalHandler;
+    }
+
+    if (href.startsWith('https://gist.github.com/')) {
+      shouldUseUniversalHandler = false;
+      handleGistGithub();
+      return shouldUseUniversalHandler;
+    }
+
+    return shouldUseUniversalHandler;
+  }
+
+  function handleGistGithub() {
+    preventTranslateElem(document.body);
   }
 
   function handleStackoverflow(location) {
-
     if (location.host === 'ru.stackoverflow.com') {
-      return
+      return;
     }
 
-    switchStackoverflowPageHandlers(location)
+    switchStackoverflowPageHandlers(location);
 
     function switchStackoverflowPageHandlers(location) {
-
       if (location.pathname === '/search') {
-        return handleSoSearchPage(location)
+        return handleSoSearchPage(location);
       }
 
       if (location.pathname.startsWith('/questions/')) {
-        return handleQuestionPage(location)
+        return handleQuestionPage(location);
       }
-
     }
 
     function handleSoSearchPage() {
-      const selectors = getSelectors('searchPage')
-      const resultsContainer = document.querySelector(selectors.resultsContainer)
-      const results = resultsContainer.querySelectorAll(selectors.results)
-      handleResults(results, selectors)
+      const selectors = getSelectors('searchPage');
+      const resultsContainer = document.querySelector(
+        selectors.resultsContainer
+      );
+      const results = resultsContainer.querySelectorAll(selectors.results);
+      handleResults(results, selectors);
 
       function handleResults(results, selectors) {
-        results.forEach(handleResult)
+        results.forEach(handleResult);
 
         function handleResult(result) {
+          const summary = result.querySelector(selectors.summary);
 
-          const summary = result.querySelector(selectors.summary)
-
-          handleResultLink(summary, selectors)
-          handleExcept(summary, selectors)
-          handleTags(summary, selectors)
-          handleStarted(summary, selectors)
+          handleResultLink(summary, selectors);
+          handleExcept(summary, selectors);
+          handleTags(summary, selectors);
+          handleStarted(summary, selectors);
         }
 
         function handleResultLink(summary, selectors) {
-          const link = summary.querySelector(selectors.link)
-          preventTranslateElem(link)
-          const titleOrigin = link.querySelector(selectors.titleOrigin).title
+          const link = summary.querySelector(selectors.link);
+          preventTranslateElem(link);
+          const titleOrigin = link.querySelector(selectors.titleOrigin).title;
 
-          let resultTitleCopyTranslate = document.createElement("P")
-          resultTitleCopyTranslate.textContent = titleOrigin
-          resultTitleCopyTranslate.style.color = '#ffdb24'
-          resultTitleCopyTranslate.style.fontSize = '17px'
-          resultTitleCopyTranslate.style.display = 'inline-block'
-          resultTitleCopyTranslate.style.margin = '0px 0px 7px 0px'
-          insertAfter(resultTitleCopyTranslate, link)
+          let resultTitleCopyTranslate = document.createElement('P');
+          resultTitleCopyTranslate.textContent = titleOrigin;
+          resultTitleCopyTranslate.style.color = '#ffdb24';
+          resultTitleCopyTranslate.style.fontSize = '17px';
+          resultTitleCopyTranslate.style.display = 'inline-block';
+          resultTitleCopyTranslate.style.margin = '0px 0px 7px 0px';
+          insertAfter(resultTitleCopyTranslate, link);
 
-          const elemWithOrigin = getElementForDisplayOriginText(titleOrigin)
-          elemWithOrigin.style.margin = '-7px 0px 11px 0px'
-          insertAfter(elemWithOrigin, link)
+          const elemWithOrigin = getElementForDisplayOriginText(titleOrigin);
+          elemWithOrigin.style.margin = '-7px 0px 11px 0px';
+          insertAfter(elemWithOrigin, link);
         }
 
         function handleExcept(summary, selectors) {
-          const excerpt = summary.querySelector(selectors.excerpt)
+          const excerpt = summary.querySelector(selectors.excerpt);
 
           duplicateWholeNotranslate(excerpt, {
             preventTranslate: 'origin',
-            delimiter: ''
-          })
+            delimiter: '',
+          });
 
-          excerpt.style.color = colorTranslatedText
+          excerpt.style.color = colorTranslatedText;
         }
 
         function handleTags(summary, selectors) {
-          const tags = summary.querySelector(selectors.tags)
-          preventTranslateElem(tags)
+          const tags = summary.querySelector(selectors.tags);
+          preventTranslateElem(tags);
         }
 
         function handleStarted(summary, selectors) {
-          const started = summary.querySelector(selectors.started)
-          preventTranslateElem(started)
+          const started = summary.querySelector(selectors.started);
+          preventTranslateElem(started);
         }
       }
-
     }
 
     function handleQuestionPage() {
-      const selectors = getSelectors('questionPage')
-      const mainContent = document.querySelector(selectors.mainContent)
+      const selectors = getSelectors('questionPage');
+      const mainContent = document.querySelector(selectors.mainContent);
 
-      handleQuestionInfo()
+      handleQuestionInfo();
 
       const specificHandlers = {
         handle_h1: handleSO_h1,
-        handleLists: () => {
-        }
-      }
+        handleLists: () => {},
+      };
 
       function handleSO_h1() {
-        const h1 = document.querySelector('h1')
+        const h1 = document.querySelector('h1');
 
         if (!h1) {
-          return
+          return;
         }
 
-        preventTranslateElem(h1)
-        h1.parentElement.style.flexFlow = 'column'
+        preventTranslateElem(h1);
+        h1.parentElement.style.flexFlow = 'column';
 
-        const link = h1.querySelector('a')
-        link.style.fontSize = '0.7em'
-        const originText = link.textContent
-        const originElem = getElementForDisplayOriginText(originText)
-        insertAfter(originElem, h1)
+        const link = h1.querySelector('a');
+        link.style.fontSize = '0.7em';
+        const originText = link.textContent;
+        const originElem = getElementForDisplayOriginText(originText);
+        insertAfter(originElem, h1);
 
-        const translated_h1 = document.createElement("SPAN")
-        translated_h1.textContent = originText
-        translated_h1.setAttribute('style', `
+        const translated_h1 = document.createElement('SPAN');
+        translated_h1.textContent = originText;
+        translated_h1.setAttribute(
+          'style',
+          `
         font-size: 1.4em;
         color: #ffdb24;
-        `)
-        insertAfter(translated_h1, h1)
+        `
+        );
+        insertAfter(translated_h1, h1);
       }
 
       function handleQuestionInfo() {
-        const question_header = document.querySelector('#question-header')
+        const question_header = document.querySelector('#question-header');
         if (!question_header) {
-          return
+          return;
         }
-        const info = question_header.nextElementSibling
-        preventTranslateElem(info)
-        const time = info.querySelector('time')
-        time.style.color = 'cyan'
+        const info = question_header.nextElementSibling;
+        preventTranslateElem(info);
+        const time = info.querySelector('time');
+        time.style.color = 'cyan';
       }
 
-      launchTagHandlers(mainContent, specificHandlers)
+      launchTagHandlers(mainContent, specificHandlers);
     }
 
     function getSelectors(page) {
-
       const SELECTORS = {
         searchPage: {
           desktop: {
@@ -290,97 +296,104 @@ function display_two_languages(extOptions, devUtils) {
         },
         questionPage: {
           desktop: {
-            mainContent: '#content'
+            mainContent: '#content',
           },
           mobile: {
-            mainContent: 'main'
-          }
+            mainContent: 'main',
+          },
         },
-      }
+      };
 
       const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
       if (isMobile) {
-        return SELECTORS[page].mobile
+        return SELECTORS[page].mobile;
       }
       //FOR DEVELOPMENT
       if (window.innerWidth < 768) {
-        return SELECTORS[page].mobile
+        return SELECTORS[page].mobile;
       }
 
-      return SELECTORS[page].desktop
-
+      return SELECTORS[page].desktop;
     }
-
   }
 
   function handleGoogleSearchPage() {
-
     const detectMobile = () => {
-      return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
-    }
+      return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    };
 
     if (detectMobile()) {
-      return
+      return;
     }
 
-    const selectors = getSelectors('searchPage')
+    const selectors = getSelectors('searchPage');
 
-    const resultsContainer = getElemBySelector(document.body, selectors.resultsContainer)
-    handleResults(resultsContainer, selectors)
+    const resultsContainer = getElemBySelector(
+      document.body,
+      selectors.resultsContainer
+    );
+    handleResults(resultsContainer, selectors);
 
     function handleResults(resultsContainer, selectors) {
-      const resultsElems = getElementsBySelector(resultsContainer, selectors.resultsElems)
-      resultsElems.forEach(handleResult)
+      const resultsElems = getElementsBySelector(
+        resultsContainer,
+        selectors.resultsElems
+      );
+      resultsElems.forEach(handleResult);
 
       function handleResult(result) {
-        handleDisplayedLink(result, selectors)
-        handleDescription(result, selectors)
+        handleDisplayedLink(result, selectors);
+        handleDescription(result, selectors);
 
         function handleDisplayedLink(result, selectors) {
-          const links = getElementsBySelector(result, selectors.links)
-          links.forEach(handleLink)
+          const links = getElementsBySelector(result, selectors.links);
+          links.forEach(handleLink);
 
           function handleLink(link) {
-            preventTranslateElem(link)
-            const resultTitle = getElemBySelector(link, selectors.resultTitle, true)
-            const resultTitleText = resultTitle.textContent
+            preventTranslateElem(link);
+            const resultTitle = getElemBySelector(
+              link,
+              selectors.resultTitle,
+              true
+            );
+            const resultTitleText = resultTitle.textContent;
 
-            resultTitle.style.fontSize = '17px'
-            resultTitle.style.display = 'inline-block'
-            resultTitle.style.margin = '3px'
+            resultTitle.style.fontSize = '17px';
+            resultTitle.style.display = 'inline-block';
+            resultTitle.style.margin = '3px';
 
+            let resultTitleCopyNotranslate = document.createElement('P');
+            resultTitleCopyNotranslate.textContent = resultTitleText;
+            preventTranslateElem(resultTitleCopyNotranslate);
+            insertAfter(resultTitleCopyNotranslate, link);
 
-            let resultTitleCopyNotranslate = document.createElement("P")
-            resultTitleCopyNotranslate.textContent = resultTitleText
-            preventTranslateElem(resultTitleCopyNotranslate)
-            insertAfter(resultTitleCopyNotranslate, link)
-
-            let resultTitleCopyTranslate = document.createElement("P")
-            resultTitleCopyTranslate.textContent = resultTitleText
-            resultTitleCopyTranslate.style.color = '#ffdb24'
-            resultTitleCopyTranslate.style.fontSize = '20px'
-            resultTitleCopyTranslate.style.display = 'inline-block'
-            resultTitleCopyTranslate.style.margin = '3px'
-            insertAfter(resultTitleCopyTranslate, link)
+            let resultTitleCopyTranslate = document.createElement('P');
+            resultTitleCopyTranslate.textContent = resultTitleText;
+            resultTitleCopyTranslate.style.color = '#ffdb24';
+            resultTitleCopyTranslate.style.fontSize = '20px';
+            resultTitleCopyTranslate.style.display = 'inline-block';
+            resultTitleCopyTranslate.style.margin = '3px';
+            insertAfter(resultTitleCopyTranslate, link);
           }
         }
 
         function handleDescription(result, selectors) {
-          const description = getElemBySelector(result, selectors.description)
+          const description = getElemBySelector(result, selectors.description);
 
           duplicateWholeNotranslate(description, {
             preventTranslate: 'origin',
-            delimiter: '<br>---------------------------------------------------------------------------------<br>',
-            nextHandler: stylizeData
-          })
+            delimiter:
+              '<br>---------------------------------------------------------------------------------<br>',
+            nextHandler: stylizeData,
+          });
 
           // stylizeData(description)
 
           function stylizeData(description) {
-            const data = getElemBySelector(description, '.f')
+            const data = getElemBySelector(description, '.f');
             if (data !== null) {
-              preventTranslateElem(data)
-              data.style.color = 'cyan'
+              preventTranslateElem(data);
+              data.style.color = 'cyan';
             }
           }
         }
@@ -388,7 +401,6 @@ function display_two_languages(extOptions, devUtils) {
     }
 
     function getSelectors(page) {
-
       const SELECTORS = {
         searchPage: {
           desktop: {
@@ -401,57 +413,54 @@ function display_two_languages(extOptions, devUtils) {
           },
           mobile: {
             resultsContainer: '#main',
-            resultsElems: '.ZINbbc.xpd.O9g5cc.uUPGi:not(#st-card):not(.BmP5tf):nth-last-of-type(n+1)',
+            resultsElems:
+              '.ZINbbc.xpd.O9g5cc.uUPGi:not(#st-card):not(.BmP5tf):nth-last-of-type(n+1)',
             summary: '.-details',
             links: '.kCrYT',
             resultTitle: '.kCrYT',
             description: '.BNeawe.s3v9rd.AP7Wnd:not(.lRVwie)',
           },
         },
-      }
+      };
 
-      return SELECTORS[page].desktop
-
+      return SELECTORS[page].desktop;
     }
   }
 
   function handleGithub() {
-
-    const href = window.location.href
-    githubGlobal(href)
-    githubSwitchHandler(href)
+    const href = window.location.href;
+    githubGlobal(href);
+    githubSwitchHandler(href);
 
     function githubSwitchHandler(href) {
-
       if (document.querySelector('#readme')) {
-        return handleMarkdownPage()
+        return handleMarkdownPage();
       }
 
-      handleGithubDefault(href)
-
+      handleGithubDefault(href);
     }
 
     function handleMarkdownPage() {
-
       // handleBox()
 
-      const notHandle = () => {}
+      const notHandle = () => {};
 
       const specificHandlers = {
         handleCodeBlocks: () => {
-          const context = document.querySelector('#readme') || document.querySelector('body')
-          handleCodeBlocksGithub(context)
+          const context =
+            document.querySelector('#readme') || document.querySelector('body');
+          handleCodeBlocksGithub(context);
         },
-        handle_h1: notHandle
-      }
+        handle_h1: notHandle,
+      };
 
-      const context = document.querySelector('#readme')
-      launchTagHandlers(context, specificHandlers)
+      const context = document.querySelector('#readme');
+      launchTagHandlers(context, specificHandlers);
 
       function handleBox() {
-        const box = document.querySelector('.repository-content')
+        const box = document.querySelector('.repository-content');
         if (box) {
-          preventTranslateElem(box)
+          preventTranslateElem(box);
         }
       }
     }
@@ -459,50 +468,50 @@ function display_two_languages(extOptions, devUtils) {
     function handleGithubDefault(href) {}
 
     function handleCodeBlocksGithub(context) {
-      const codeBlocks = context.querySelectorAll('pre')
-      codeBlocks.forEach(handleCode)
+      const codeBlocks = context.querySelectorAll('pre');
+      codeBlocks.forEach(handleCode);
 
       function handleCode(code) {
-        const lines = code.querySelectorAll('span')
-        lines.forEach(handleLine)
+        const lines = code.querySelectorAll('span');
+        lines.forEach(handleLine);
 
         function handleLine(line) {
-
           if (line.className === 'pl-c') {
-            return handleCommentLine(line)
+            return handleCommentLine(line);
           }
 
-          return preventTranslateElem(line)
+          return preventTranslateElem(line);
 
           function handleCommentLine(commentLine) {
-            const commText = commentLine.textContent || ''
+            const commText = commentLine.textContent || '';
             const commentStyle = {
               display: 'block;',
-              color: '#148000a1'
-            }
+              color: '#148000a1',
+            };
 
             if (commText.length > 10) {
-              duplicateForNoTranslate(commentLine, commentStyle)
+              duplicateForNoTranslate(commentLine, commentStyle);
             }
           }
 
           function duplicateForNoTranslate(elem, style) {
-            const clone = elem.cloneNode(true)
+            const clone = elem.cloneNode(true);
 
             if (style && style instanceof Object) {
-              const styleString = Object.entries(style).map(([k, v]) => `${k}:${v}`).join(';')
-              elem.setAttribute('style', styleString)
+              const styleString = Object.entries(style)
+                .map(([k, v]) => `${k}:${v}`)
+                .join(';');
+              elem.setAttribute('style', styleString);
             }
 
-            preventTranslateElem(clone)
-            insertAfter(clone, elem)
+            preventTranslateElem(clone);
+            insertAfter(clone, elem);
           }
         }
       }
     }
 
     function githubGlobal() {
-
       const githubGlobalSelectorsPreventTranslate = [
         '[class="Box mb-3"]',
         'div.BorderGrid',
@@ -516,79 +525,77 @@ function display_two_languages(extOptions, devUtils) {
         'nav.menu',
         'ul.filter-list',
         'button',
-      ]
+      ];
 
-      githubGlobalCodeBlocksHandler()
-      githubGlobalPreventTranslate(githubGlobalSelectorsPreventTranslate)
-
+      githubGlobalCodeBlocksHandler();
+      githubGlobalPreventTranslate(githubGlobalSelectorsPreventTranslate);
 
       function githubGlobalCodeBlocksHandler() {
-        const code = document.querySelector('table.highlight>tbody')
+        const code = document.querySelector('table.highlight>tbody');
         if (code) {
-          handleCode(code)
+          handleCode(code);
         }
 
         function handleCode(code) {
-          preventTranslateElem(code)
+          preventTranslateElem(code);
         }
       }
 
       function githubGlobalPreventTranslate(selectors) {
-        selectors.forEach(selector => {
-          const elem = document.querySelector(selector)
+        selectors.forEach((selector) => {
+          const elem = document.querySelector(selector);
           if (elem) {
-            preventTranslateElem(elem)
+            preventTranslateElem(elem);
           }
-        })
+        });
       }
     }
   }
 
   function getMainContext(extOtions, MAIN_CONTENT_SELECTORS) {
-    const context = getByTag(MAIN_CONTENT_SELECTORS.tagsShouldBeOne) ||
-      document.body
-    return context
+    const context =
+      getByTag(MAIN_CONTENT_SELECTORS.tagsShouldBeOne) || document.body;
+    return context;
 
     function getByTag(selectors) {
       for (const selector of selectors) {
-        const elements = document.querySelectorAll(`${selector}`)
+        const elements = document.querySelectorAll(`${selector}`);
         if (elements.length === 1) {
-          return elements[0]
+          return elements[0];
         }
       }
-
     }
   }
 
   function preventTitleTranslate() {
-    const originTitle = document.title
-    setTimeout(setTitle.bind(null, originTitle), 5000)
+    const originTitle = document.title;
+    setTimeout(setTitle.bind(null, originTitle), 5000);
 
     function setTitle(title) {
-      document.title = title
+      document.title = title;
     }
   }
 
   function launchTagsHandlersByRules(context) {
-    !(detectPageLangRussian()) && launchTagHandlers(context)
+    !detectPageLangRussian() && launchTagHandlers(context);
 
     function detectPageLangRussian() {
       return checkByHtmlLangAttr() || checkByTitle();
 
       function checkByHtmlLangAttr() {
-        const language = document.querySelector('HTML').getAttribute('lang')
+        const language = document.querySelector('HTML').getAttribute('lang');
         if (language) {
           if (language.includes('ru')) {
-            return true
+            return true;
           } else {
-            return false
+            return false;
           }
         }
       }
 
       function checkByTitle() {
         const titleHasCirillic = testCirillic(document.title);
-        return titleHasCirillic
+        return titleHasCirillic;
       }
 
       function testCirillic(str) {
@@ -596,11 +603,9 @@ function display_two_languages(extOptions, devUtils) {
         return cyrillicPattern.test(str);
       }
     }
-
   }
 
   function launchTagHandlers(context, specificHandlers) {
-
     const handlers = {
       handle_P,
       handleCodeBlocks,
@@ -613,224 +618,228 @@ function display_two_languages(extOptions, devUtils) {
       handleDD,
       handleTR,
       handleLinks,
-      ...specificHandlers
-    }
+      ...specificHandlers,
+    };
 
-    handlers.handle_P(context)
-    handlers.handleCodeBlocks(context)
-    handlers.handle_h1(context)
-    handlers.handleOtherHTags(context)
-    handlers.handleButtons(context)
-    handlers.handleLists(context)
-    handlers.handleSelects(context)
-    handlers.handleForms(context)
-    handlers.handleDD(context)
-    handlers.handleTR(context)
-    handlers.handleLinks(context)
+    handlers.handle_P(context);
+    handlers.handleCodeBlocks(context);
+    handlers.handle_h1(context);
+    handlers.handleOtherHTags(context);
+    handlers.handleButtons(context);
+    handlers.handleLists(context);
+    handlers.handleSelects(context);
+    handlers.handleForms(context);
+    handlers.handleDD(context);
+    handlers.handleTR(context);
+    handlers.handleLinks(context);
   }
 
   function handle_h1(context) {
-    const all_h1 = getElementsBySelector(document, 'H1', false)
-    all_h1.forEach(h1 => {
-      const copy = duplicateWholeNotranslate(h1)
-      handleCopy(copy, h1)
-    })
+    const all_h1 = getElementsBySelector(document, 'H1', false);
+    all_h1.forEach((h1) => {
+      const copy = duplicateWholeNotranslate(h1);
+      handleCopy(copy, h1);
+    });
 
     function handleCopy(copy, origin) {
-      copy.style.color = colorTranslatedText
-      const fs = origin.style.fontSize
+      copy.style.color = colorTranslatedText;
+      const fs = origin.style.fontSize;
       if (fs) {
-        const nfs = fs / 2
-        copy.style.fontSize = nfs
+        const nfs = fs / 2;
+        copy.style.fontSize = nfs;
       }
     }
   }
 
   function handleOtherHTags(context) {
-    const selector = 'H2, H3, H4, H5, H6'
-    const allHTags = getElementsBySelector(context, selector, false)
-    allHTags.forEach(h => {
-      const originText = h.textContent
-      insertElementWithOriginText(originText, h)
-    })
+    const selector = 'H2, H3, H4, H5, H6';
+    const allHTags = getElementsBySelector(context, selector, false);
+    allHTags.forEach((h) => {
+      const originText = h.textContent;
+      insertElementWithOriginText(originText, h);
+    });
   }
 
   function handle_P(context) {
-
-    const selector = "P"
-    const allP = getElementsBySelector(context, selector)
-    const filtered = commonTagPFilter(allP)
-    filtered.forEach(p => {
-
+    const selector = 'P';
+    const allP = getElementsBySelector(context, selector);
+    const filtered = commonTagPFilter(allP);
+    filtered.forEach((p) => {
       if (detectForStep(p)) {
-        return
+        return;
       }
 
-      const originText = p.outerText
-      insertElementWithOriginText(originText, p)
-    })
+      const originText = p.outerText;
+      insertElementWithOriginText(originText, p);
+    });
 
     function commonTagPFilter(allP) {
-      let filtered = filterByParentTagLi(allP)
+      let filtered = filterByParentTagLi(allP);
 
-      return filtered
+      return filtered;
 
       function filterByParentTagLi(elems) {
-        return [...elems].filter(el => {
-          return el.parentNode.nodeName !== 'LI'
-        })
+        return [...elems].filter((el) => {
+          return el.parentNode.nodeName !== 'LI';
+        });
       }
     }
 
     function detectForStep(p) {
       if (p.parentElement.getAttribute('role') === 'menu') {
-        return true
+        return true;
       }
 
-      return false
+      return false;
     }
   }
 
   function handleLists(context) {
-    const allTagsLi = getElementsBySelector(context, "LI")
-    allTagsLi.forEach(li => {
-
+    const allTagsLi = getElementsBySelector(context, 'LI');
+    allTagsLi.forEach((li) => {
       if (detectForStep(li)) {
-        return
+        return;
       } else {
-        const elemNotranslate = li.cloneNode(true)
-        preventTranslateElem(elemNotranslate)
-        elemNotranslate.style.color = colorTranslatedText
-        insertAfter(elemNotranslate, li)
+        const elemNotranslate = li.cloneNode(true);
+        preventTranslateElem(elemNotranslate);
+        elemNotranslate.style.color = colorTranslatedText;
+        insertAfter(elemNotranslate, li);
       }
-
-    })
+    });
 
     function detectForStep(li) {
-
       if (li.parentElement.getAttribute('role') === 'menu') {
-        return true
+        return true;
       }
 
       if (li.parentElement.parentElement.tagName === 'TD') {
-        return true
+        return true;
       }
 
-      return false
+      return false;
     }
   }
 
   function handleCodeBlocks(context) {
-    const allCodeBlocks = getAllCodeBlocks(context)
+    const allCodeBlocks = getAllCodeBlocks(context);
 
-    allCodeBlocks.forEach(code => {
-      preventTranslateElem(code)
+    allCodeBlocks.forEach((code) => {
+      preventTranslateElem(code);
     });
 
     function getAllCodeBlocks(context) {
-      const selectors = ALL_SELECTORS_CODEBLOCKS.toString()
-      const allCodeBlocks = getElementsBySelector(context, selectors)
-      return allCodeBlocks
+      const selectors = ALL_SELECTORS_CODEBLOCKS.toString();
+      const allCodeBlocks = getElementsBySelector(context, selectors);
+      return allCodeBlocks;
     }
   }
 
   function handleButtons(context) {
-    const buttons = getElementsBySelector(context, 'button')
-    buttons.forEach(btn => {
-      preventTranslateElem(btn)
-    })
+    const buttons = getElementsBySelector(context, 'button');
+    buttons.forEach((btn) => {
+      preventTranslateElem(btn);
+    });
   }
 
   function handleSelects(context) {
-    const selects = document.querySelectorAll('select')
-    selects.forEach(sel => {
-      preventTranslateElem(sel)
-    })
+    const selects = document.querySelectorAll('select');
+    selects.forEach((sel) => {
+      preventTranslateElem(sel);
+    });
   }
 
   function handleForms(context) {
-
-    handleInputs()
-    handleForms()
+    handleInputs();
+    handleForms();
 
     function handleInputs() {
-      const inputs = document.querySelectorAll('input')
-      inputs.forEach(input => {
-        preventTranslateElem(input)
-      })
+      const inputs = document.querySelectorAll('input');
+      inputs.forEach((input) => {
+        preventTranslateElem(input);
+      });
     }
 
     function handleForms() {
-      handleSearchForms()
+      handleSearchForms();
 
       function handleSearchForms() {
-        const selector = 'form#search, form[role="search"]'
-        const sfs = getElementsBySelector(document, selector)
-        sfs.forEach(fs => {
-          preventTranslateElem(fs)
-        })
+        const selector = 'form#search, form[role="search"]';
+        const sfs = getElementsBySelector(document, selector);
+        sfs.forEach((fs) => {
+          preventTranslateElem(fs);
+        });
       }
     }
   }
 
   function handleDD(context) {
-    const dds = getElementsBySelector(context, 'dd')
-    dds.forEach(dd => {
-      const originText = dd.textContent
-      const dd_copy = document.createElement("dd")
-      dd_copy.textContent = originText
-      dd_copy.style.color = "#7b7a7b"
-      preventTranslateElem(dd_copy)
+    const dds = getElementsBySelector(context, 'dd');
+    dds.forEach((dd) => {
+      const originText = dd.textContent;
+      const dd_copy = document.createElement('dd');
+      dd_copy.textContent = originText;
+      dd_copy.style.color = '#7b7a7b';
+      preventTranslateElem(dd_copy);
       dd.parentNode.insertBefore(dd_copy, dd.nextSibling);
-    })
+    });
   }
 
   function handleTR(context) {
-    const trs = getElementsBySelector(context, 'tr')
-    trs.forEach(tr => {
-      const tr_clone = tr.cloneNode(true)
-      tr_clone.style.color = colorTranslatedText
-      preventTranslateElem(tr_clone)
-      insertAfter(tr_clone, tr)
-    })
+    const trs = getElementsBySelector(context, 'tr');
+    trs.forEach((tr) => {
+      const tr_clone = tr.cloneNode(true);
+      tr_clone.style.color = colorTranslatedText;
+      preventTranslateElem(tr_clone);
+      insertAfter(tr_clone, tr);
+    });
   }
 
   function getElemBySelector(context = document, selector, isRequired = false) {
-    const element = context.querySelector(selector)
-    isDev && showBorder(element, selector)
-    isDev && console.log('\x1b[36m%s\x1b[0m', "element.className = ", element.className)
+    const element = context.querySelector(selector);
+    isDev && showBorder(element, selector);
+    isDev &&
+      console.log(
+        '\x1b[36m%s\x1b[0m',
+        'element.className = ',
+        element.className
+      );
 
     if (element === null) {
       if (isRequired === true) {
-        throw new Error(`Not found element by selector: ${selector}`)
+        throw new Error(`Not found element by selector: ${selector}`);
       }
-      isDev && console.error(`Not found element by selector: ${selector}`)
-      return null
+      isDev && console.error(`Not found element by selector: ${selector}`);
+      return null;
     }
 
-    return element
+    return element;
   }
 
-  function getElementsBySelector(context = document, selector, isRequired = false) {
-    const elements = context.querySelectorAll(selector)
-    isDev && elements.forEach(element => {
-      showBorder(element, selector)
-    })
+  function getElementsBySelector(
+    context = document,
+    selector,
+    isRequired = false
+  ) {
+    const elements = context.querySelectorAll(selector);
+    isDev &&
+      elements.forEach((element) => {
+        showBorder(element, selector);
+      });
 
     if (elements.length === 0) {
       if (isRequired === true) {
-        throw new Error(`Not found elements by selector: ${selector}`)
+        throw new Error(`Not found elements by selector: ${selector}`);
       }
-      isDev && console.error(`Not found elements by selector: ${selector}`)
-      return elements
+      isDev && console.error(`Not found elements by selector: ${selector}`);
+      return elements;
     }
 
-    return elements
+    return elements;
   }
 
   function insertElementWithOriginText(text, parent) {
-    const element = getElementForDisplayOriginText(text)
-    insertAfter(element, parent)
+    const element = getElementForDisplayOriginText(text);
+    insertAfter(element, parent);
   }
 
   function insertAfter(newNode, referenceNode) {
@@ -838,66 +847,53 @@ function display_two_languages(extOptions, devUtils) {
   }
 
   function handleLinks() {
-    handleTags()
+    handleTags();
 
     function handleTags() {
-      const relTags = document.querySelectorAll('a[rel="tag"]')
-      relTags.forEach(tag => {
-        preventTranslateElem(tag)
-      })
+      const relTags = document.querySelectorAll('a[rel="tag"]');
+      relTags.forEach((tag) => {
+        preventTranslateElem(tag);
+      });
     }
   }
 
   function getElementForDisplayOriginText(text) {
-    const element = document.createElement("P")
-    preventTranslateElem(element)
-    element.classList.add('originText')
-    element.style.color = colorTranslatedText
-    element.textContent = text
+    const element = document.createElement('P');
+    preventTranslateElem(element);
+    element.classList.add('originText');
+    element.style.color = colorTranslatedText;
+    element.textContent = text;
 
-    return element
+    return element;
   }
 
   function duplicateWholeNotranslate(elem, options) {
-
     if (!elem) {
-      return
+      return;
     }
 
     const defaultOptions = {
       preventTranslate: 'origin',
       delimiter: '',
-      nextHandler: () => {
-      }
-    }
+      nextHandler: () => {},
+    };
 
     const innerOptions = {
       defaultOptions,
-      ...options
-    }
+      ...options,
+    };
 
-    const {
-      preventTranslate,
-      delimiter
-    } = innerOptions
+    const { preventTranslate, delimiter } = innerOptions;
 
-    let elem_clone = elem.cloneNode(true)
+    let elem_clone = elem.cloneNode(true);
 
-    preventTranslateElem(preventTranslate === 'origin' ? elem : elem_clone)
+    preventTranslateElem(preventTranslate === 'origin' ? elem : elem_clone);
 
     if (delimiter) {
-      elem_clone.innerHTML = `${delimiter}${elem.innerHTML}`
+      elem_clone.innerHTML = `${delimiter}${elem.innerHTML}`;
     }
 
-    insertAfter(elem_clone, elem)
-    return elem_clone
+    insertAfter(elem_clone, elem);
+    return elem_clone;
   }
 }
-
-
-
-
-
-
-
-
