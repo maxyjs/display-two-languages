@@ -422,6 +422,10 @@ function handleGoogleSearchPage() {
 
 function handleGithub() {
   const href = window.location.href;
+  const hostname = window.location.hostname;
+
+  listenUrlChange(hostname);
+
   githubGlobal(href);
   githubSwitchHandler(href);
 
@@ -496,6 +500,8 @@ function handleGithub() {
   }
 
   function githubGlobal() {
+    handleLinks();
+
     const githubGlobalSelectorsPreventTranslate = [
       '[class="Box mb-3"]',
       'div.BorderGrid',
@@ -633,13 +639,12 @@ function handle_P(context) {
   const selector = 'P';
   const allP = getElementsBySelector(context, selector);
   const filtered = commonTagPFilter(allP);
-  filtered.forEach((p) => {
-    if (skip(p)) {
-      return;
-    }
 
-    const originText = p.innerText;
-    insertElementWithOriginText(originText, p);
+  filtered.forEach((p) => {
+    if (!skip(p)) {
+      const originText = p.innerText;
+      insertElementWithOriginText(originText, p);
+    }
   });
 
   function commonTagPFilter(allP) {
@@ -844,4 +849,21 @@ function duplicateNoTranslate(elem, options) {
 
   insertAfter(elem_clone, elem);
   return elem_clone;
+}
+
+function listenUrlChange(hostname) {
+  chrome.runtime.onMessage.addListener(function (request, sender) {
+    console.log(
+      '\x1b[36m%s\x1b[0m',
+      'sender = ',
+      sender
+    ); /* CONSOLE *************/
+    handleMessage(request);
+  });
+
+  function handleMessage(message) {
+    if (message.includes(hostname)) {
+      window.location.reload();
+    }
+  }
 }
