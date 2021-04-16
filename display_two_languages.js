@@ -11,6 +11,7 @@ const extOptions = {
     'codeburst.io',
     'atavi.com',
     'codesandbox.io',
+    'youtube.com'
   ],
 };
 
