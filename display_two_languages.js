@@ -12,7 +12,7 @@ const extOptions = {
     'atavi.com',
     'codesandbox.io',
     'youtube.com'
-  ],
+  ]
 };
 
 function showBorder(element, selector = '') {
@@ -46,7 +46,7 @@ function showBorder(element, selector = '') {
   }
 }
 
-(function () {
+(function() {
   try {
     launch();
   } catch (err) {
@@ -75,8 +75,8 @@ function display_two_languages(extOptions) {
       '.main',
       '#main',
       '.container',
-      'main',
-    ],
+      'main'
+    ]
   };
 
   extOptions.preventTitleTranslate && preventTitleTranslate();
@@ -84,7 +84,7 @@ function display_two_languages(extOptions) {
   let shouldUseUniversalHandler = switchHandler();
 
   shouldUseUniversalHandler &&
-    launchUniversalHandler(MAIN_CONTENT_SELECTORS, extOptions);
+  launchUniversalHandler(MAIN_CONTENT_SELECTORS, extOptions);
 }
 
 function preventTranslateElem(elem) {
@@ -193,7 +193,7 @@ function handleStackoverflow(location) {
 
         duplicateNoTranslate(excerpt, {
           preventTranslate: 'origin',
-          delimiter: '',
+          delimiter: ''
         });
 
         excerpt.style.color = colorTranslatedText;
@@ -219,7 +219,8 @@ function handleStackoverflow(location) {
 
     const specificHandlers = {
       handle_h1: handleSO_h1,
-      handleLists: () => {},
+      handleLists: () => {
+      }
     };
 
     function handleSO_h1() {
@@ -275,7 +276,7 @@ function handleStackoverflow(location) {
           titleOrigin: 'h3>a',
           excerpt: 'div.excerpt',
           tags: 'div.tags',
-          started: 'div.started',
+          started: 'div.started'
         },
         mobile: {
           resultsContainer: 'div.js-search-results',
@@ -285,17 +286,17 @@ function handleStackoverflow(location) {
           titleOrigin: 'a',
           excerpt: 'div.-excerpt',
           tags: 'div.-tags',
-          started: '.-meta',
-        },
+          started: '.-meta'
+        }
       },
       questionPage: {
         desktop: {
-          mainContent: '#content',
+          mainContent: '#content'
         },
         mobile: {
-          mainContent: 'main',
-        },
-      },
+          mainContent: 'main'
+        }
+      }
     };
 
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -378,7 +379,7 @@ function handleGoogleSearchPage() {
           preventTranslate: 'origin',
           delimiter:
             '<br>---------------------------------------------------------------------------------<br>',
-          nextHandler: stylizeData,
+          nextHandler: stylizeData
         });
 
         // stylizeData(description)
@@ -403,7 +404,7 @@ function handleGoogleSearchPage() {
           summary: '.summary',
           links: '.yuRUbf',
           resultTitle: 'h3',
-          description: '.aCOpRe',
+          description: '.aCOpRe'
         },
         mobile: {
           resultsContainer: '#main',
@@ -412,9 +413,9 @@ function handleGoogleSearchPage() {
           summary: '.-details',
           links: '.kCrYT',
           resultTitle: '.kCrYT',
-          description: '.BNeawe.s3v9rd.AP7Wnd:not(.lRVwie)',
-        },
-      },
+          description: '.BNeawe.s3v9rd.AP7Wnd:not(.lRVwie)'
+        }
+      }
     };
 
     return SELECTORS[page].desktop;
@@ -439,7 +440,8 @@ function handleGithub() {
   }
 
   function handleMarkdownPage() {
-    const notHandle = () => {};
+    const notHandle = () => {
+    };
 
     const specificHandlers = {
       handleCodeBlocks: () => {
@@ -447,14 +449,15 @@ function handleGithub() {
           document.querySelector('#readme') || document.querySelector('body');
         handleCodeBlocksGithub(context);
       },
-      handle_h1: notHandle,
+      handle_h1: notHandle
     };
 
     const context = document.querySelector('#readme');
     launchTagHandlers(context, specificHandlers);
   }
 
-  function handleGithubDefault(href) {}
+  function handleGithubDefault(href) {
+  }
 
   function handleCodeBlocksGithub(context) {
     const codeBlocks = context.querySelectorAll('pre');
@@ -475,7 +478,7 @@ function handleGithub() {
           const commText = commentLine.textContent || '';
           const commentStyle = {
             display: 'block;',
-            color: '#148000a1',
+            color: '#148000a1'
           };
 
           if (commText.length > 10) {
@@ -515,7 +518,7 @@ function handleGithub() {
       'div.file-navigation',
       'nav',
       'ul.filter-list',
-      'button',
+      'button'
     ];
 
     githubGlobalCodeBlocksHandler();
@@ -613,7 +616,7 @@ function launchTagHandlers(context, specificHandlers) {
     handleDD,
     handleTR,
     handleLinks,
-    ...specificHandlers,
+    ...specificHandlers
   };
 
   handlers.handle_P(context);
@@ -690,12 +693,40 @@ function handleCodeBlocks(context) {
   const allCodeBlocks = getAllCodeBlocks(context, ALL_SELECTORS_CODEBLOCKS);
 
   allCodeBlocks.forEach((code) => {
+    copyCode(code);
     preventTranslateElem(code);
   });
+
+  function copyCode(code) {
+    let copyButton = document.createElement('button');
+    let buttonText = document.createTextNode('COPY');
+    copyButton.className = 'copyButton';
+    copyButton.appendChild(buttonText);
+    copyButton.style.width = '100%';
+    copyButton.style.height = '2rem';
+    copyButton.style.marginTop = '1rem';
+    code.appendChild(copyButton);
+    copyButton.addEventListener(
+      'click',
+      copyTextFunc(code, copyButton, code)
+    );
+  }
 
   function getAllCodeBlocks(context, ALL_SELECTORS_CODEBLOCKS) {
     const selectors = ALL_SELECTORS_CODEBLOCKS.toString();
     return getElementsBySelector(context, selectors);
+  }
+
+  function copyTextFunc(elementToCopy, buttonToUpdate, areaToHighlight) {
+    return function copyText() {
+      areaToHighlight.className = 'areaToHighlight';
+      elementToCopy.style.border = '1px solid #567a0d';
+      setTimeout(() => {
+        areaToHighlight.className = 'areaToUnHighlight';
+      }, 400);
+      window.copyToClipboard(elementToCopy.innerText.slice(0, -4));
+      buttonToUpdate.innerText = 'COPIED';
+    };
   }
 }
 
@@ -704,9 +735,12 @@ function handleCodePhrase(context) {
   const allPhrases = getAllPhrases(context, ALL_SELECTORS_PHRASES);
 
   allPhrases.forEach((element) => {
+    if (element.parentElement.nodeName === 'PRE') {
+      return;
+    }
     if (!element.children.length) {
       if (!detectNextCharPunctuations(element)) {
-      element.innerText = " " + element.innerText + " ";
+        element.innerText = ' ' + element.innerText + ' ';
       }
     }
 
@@ -714,6 +748,7 @@ function handleCodePhrase(context) {
       const punctuations = ['.', ',', ':', '!', '?'];
       return (element?.nextSibling?.data?.charAt(0)) && (punctuations.includes(element?.nextSibling?.data?.charAt(0)));
     }
+
     preventTranslateElem(element);
   });
 
@@ -787,7 +822,7 @@ function getElemBySelector(context = document, selector, isRequired = false) {
   const element = context.querySelector(selector);
   isDev && showBorder(element, selector);
   isDev &&
-    console.log('\x1b[36m%s\x1b[0m', 'element.className = ', element.className);
+  console.log('\x1b[36m%s\x1b[0m', 'element.className = ', element.className);
 
   if (element === null) {
     if (isRequired === true) {
@@ -807,9 +842,9 @@ function getElementsBySelector(
 ) {
   const elements = context.querySelectorAll(selector);
   isDev &&
-    elements.forEach((element) => {
-      showBorder(element, selector);
-    });
+  elements.forEach((element) => {
+    showBorder(element, selector);
+  });
 
   if (elements.length === 0) {
     if (isRequired === true) {
@@ -856,12 +891,13 @@ function duplicateNoTranslate(elem, options) {
   const defaultOptions = {
     preventTranslate: 'origin',
     delimiter: '',
-    nextHandler: () => {},
+    nextHandler: () => {
+    }
   };
 
   const innerOptions = {
     defaultOptions,
-    ...options,
+    ...options
   };
 
   const { preventTranslate, delimiter } = innerOptions;
@@ -879,7 +915,7 @@ function duplicateNoTranslate(elem, options) {
 }
 
 function listenUrlChange(hostname) {
-  chrome.runtime.onMessage.addListener(function (request, sender) {
+  chrome.runtime.onMessage.addListener(function(request, sender) {
     console.log(
       '\x1b[36m%s\x1b[0m',
       'sender = ',
@@ -894,3 +930,95 @@ function listenUrlChange(hostname) {
     }
   }
 }
+
+!function(e) {
+  if ('object' == typeof exports && 'undefined' != typeof module) module.exports = e();
+  else if ('function' == typeof define && define.amd) define([], e);
+  else {
+    var t;
+    t = 'undefined' != typeof window ? window : 'undefined' != typeof global ? global : 'undefined' != typeof self ? self : this, t.copyToClipboard = e();
+  }
+}(function() {
+  return function e(t, n, o) {
+    function r(c, i) {
+      if (!n[c]) {
+        if (!t[c]) {
+          var l = 'function' == typeof require && require;
+          if (!i && l) return l(c, !0);
+          if (a) return a(c, !0);
+          var u = new Error('Cannot find module \'' + c + '\'');
+          throw u.code = 'MODULE_NOT_FOUND', u;
+        }
+        var s = n[c] = {
+          exports: {}
+        };
+        t[c][0].call(s.exports, function(e) {
+          var n = t[c][1][e];
+          return r(n ? n : e);
+        }, s, s.exports, e, t, n, o);
+      }
+      return n[c].exports;
+    }
+
+    for (var a = 'function' == typeof require && require, c = 0; c < o.length; c++) r(o[c]);
+    return r;
+  }({
+    1: [function(e, t, n) {
+      'use strict';
+
+      function o(e) {
+        var t = (/mac os x/i.test(navigator.userAgent) ? '⌘' : 'Ctrl') + '+C';
+        return e.replace(/#{\s*key\s*}/g, t);
+      }
+
+      function r(e, t) {
+        var n, r, i, l, u, s, f = !1;
+        t || (t = {}), n = t.debug || !1;
+        try {
+          i = a(), l = document.createRange(), u = document.getSelection(), s = document.createElement('span'), s.textContent = e, s.style.all = 'unset', s.style.position = 'fixed', s.style.top = 0, s.style.clip = 'rect(0, 0, 0, 0)', s.style.whiteSpace = 'pre', s.style.webkitUserSelect = 'text', s.style.MozUserSelect = 'text', s.style.msUserSelect = 'text', s.style.userSelect = 'text', document.body.appendChild(s), l.selectNode(s), u.addRange(l);
+          var d = document.execCommand('copy');
+          if (!d) throw new Error('copy command was unsuccessful');
+          f = !0;
+        } catch (a) {
+          n && console.error('unable to copy using execCommand: ', a), n && console.warn('trying IE specific stuff');
+          try {
+            window.clipboardData.setData('text', e), f = !0;
+          } catch (a) {
+            n && console.error('unable to copy using clipboardData: ', a), n && console.error('falling back to prompt'), r = o('message' in t ? t.message : c), window.prompt(r, e);
+          }
+        } finally {
+          u && ('function' == typeof u.removeRange ? u.removeRange(l) : u.removeAllRanges()), s && document.body.removeChild(s), i();
+        }
+        return f;
+      }
+
+      var a = e('toggle-selection'),
+        c = 'Copy to clipboard: #{key}, Enter';
+      t.exports = r;
+    }, {
+      'toggle-selection': 2
+    }],
+    2: [function(e, t, n) {
+      t.exports = function() {
+        var e = document.getSelection();
+        if (!e.rangeCount) return function() {
+        };
+        for (var t = document.activeElement, n = [], o = 0; o < e.rangeCount; o++) n.push(e.getRangeAt(o));
+        switch (t.tagName.toUpperCase()) {
+          case 'INPUT':
+          case 'TEXTAREA':
+            t.blur();
+            break;
+          default:
+            t = null;
+        }
+        return e.removeAllRanges(),
+          function() {
+            'Caret' === e.type && e.removeAllRanges(), e.rangeCount || n.forEach(function(t) {
+              e.addRange(t);
+            }), t && t.focus();
+          };
+      };
+    }, {}]
+  }, {}, [1])(1);
+});
