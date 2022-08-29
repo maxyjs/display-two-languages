@@ -703,11 +703,18 @@ function handleCodePhrase(context) {
   const ALL_SELECTORS_PHRASES = ['code'];
   const allPhrases = getAllPhrases(context, ALL_SELECTORS_PHRASES);
 
-  allPhrases.forEach((phrase) => {
-    if (!phrase.children.length) {
-      phrase.innerText = phrase.innerText + " ";
+  allPhrases.forEach((element) => {
+    if (!element.children.length) {
+      if (!detectNextCharPunctuations(element)) {
+      element.innerText = " " + element.innerText + " ";
+      }
     }
-    preventTranslateElem(phrase);
+
+    function detectNextCharPunctuations(element) {
+      const punctuations = ['.', ',', ':', '!', '?'];
+      return (element?.nextSibling?.data?.charAt(0)) && (punctuations.includes(element?.nextSibling?.data?.charAt(0)));
+    }
+    preventTranslateElem(element);
   });
 
   function getAllPhrases(context, ALL_SELECTORS_PHRASES) {
