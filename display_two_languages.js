@@ -604,6 +604,7 @@ function launchTagHandlers(context, specificHandlers) {
   const handlers = {
     handle_P,
     handleCodeBlocks,
+    handleCodePhrase,
     handleOtherHTags,
     handleLists,
     handleButtons,
@@ -617,6 +618,7 @@ function launchTagHandlers(context, specificHandlers) {
 
   handlers.handle_P(context);
   handlers.handleCodeBlocks(context);
+  handlers.handleCodePhrase(context);
   handlers.handleOtherHTags(context);
   handlers.handleButtons(context);
   handlers.handleLists(context);
@@ -693,6 +695,23 @@ function handleCodeBlocks(context) {
 
   function getAllCodeBlocks(context, ALL_SELECTORS_CODEBLOCKS) {
     const selectors = ALL_SELECTORS_CODEBLOCKS.toString();
+    return getElementsBySelector(context, selectors);
+  }
+}
+
+function handleCodePhrase(context) {
+  const ALL_SELECTORS_PHRASES = ['code'];
+  const allPhrases = getAllPhrases(context, ALL_SELECTORS_PHRASES);
+
+  allPhrases.forEach((phrase) => {
+    if (!phrase.children.length) {
+      phrase.innerText = phrase.innerText + " ";
+    }
+    preventTranslateElem(phrase);
+  });
+
+  function getAllPhrases(context, ALL_SELECTORS_PHRASES) {
+    const selectors = ALL_SELECTORS_PHRASES.toString();
     return getElementsBySelector(context, selectors);
   }
 }
