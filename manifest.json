@@ -1,7 +1,13 @@
 {
    "name": "Display Two Languages",
    "manifest_version": 2,
-   "permissions": [ "tabs" ],
+   "permissions": [
+      "<all_urls>",
+      "contextMenus",
+      "activeTab",
+      "tabs",
+      "background"
+   ],
    "short_name": "Display Two Languages",
    "version": "0.20",
    "author": "SokolovDADeveloper",
