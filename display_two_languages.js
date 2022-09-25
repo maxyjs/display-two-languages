@@ -705,6 +705,7 @@ function handleCodeBlocks(context) {
     copyButton.style.width = '100%';
     copyButton.style.height = '2rem';
     copyButton.style.marginTop = '1rem';
+    copyButton.style.display = 'block';
     code.appendChild(copyButton);
     copyButton.addEventListener(
       'click',
