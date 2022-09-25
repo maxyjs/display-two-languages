@@ -689,7 +689,7 @@ function handleLists(context) {
 }
 
 function handleCodeBlocks(context) {
-  const ALL_SELECTORS_CODEBLOCKS = ['pre', 'figure', '.gist', '.highlight'];
+  const ALL_SELECTORS_CODEBLOCKS = ['pre', 'figure:not(:has(img))', '.gist', '.highlight'];
   const allCodeBlocks = getAllCodeBlocks(context, ALL_SELECTORS_CODEBLOCKS);
 
   allCodeBlocks.forEach((code) => {
