@@ -13,7 +13,8 @@
    "author": "SokolovDADeveloper",
    "background": {
       "scripts": [
-         "onUpdated_background.js"
+         "onUpdated_background.js",
+         "development/hot-reload.js"
       ]
    },
    "browser_action": {
